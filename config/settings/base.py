@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 import os
+from distutils.util import strtobool
 from os.path import join, dirname, abspath
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -20,11 +21,16 @@ def load_env():
     from dotenv import load_dotenv, find_dotenv
     load_dotenv(find_dotenv(), verbose=True)
 
+def to_bool(string):
+    return bool(strtobool(string))
+
+load_env()
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', False)
+DEBUG = to_bool(os.environ.get('DEBUG', False))
 
 ALLOWED_HOSTS = []
 
