@@ -22,6 +22,9 @@ def load_env():
     load_dotenv(find_dotenv(), verbose=True)
 
 def to_bool(string):
+    if(isinstance(string, bool)):
+        return string
+
     return bool(strtobool(string))
 
 load_env()
@@ -96,8 +99,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db',
+        'USER': 'django',
+        'PASSWORD': 'django',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
