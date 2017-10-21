@@ -22,9 +22,8 @@ def load_env():
     load_dotenv(find_dotenv(), verbose=True)
 
 def to_bool(string):
-    if(isinstance(string, bool)):
+    if (type(string) is bool):
         return string
-
     return bool(strtobool(string))
 
 load_env()
