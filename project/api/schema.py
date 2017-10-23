@@ -20,6 +20,7 @@ class CreateUser(graphene.Mutation):
         user_data = UserInput(required=True)
 
     user = graphene.Field(User)
+    id = graphene.Int()
 
     @staticmethod
     def mutate(root, info, user_data=None):
@@ -30,7 +31,7 @@ class CreateUser(graphene.Mutation):
             email=user_data.email,
             password=user_data.password
         )
-        return CreateUser(user=user)
+        return CreateUser(user=user, id=user.id)
 
 class Query(graphene.ObjectType):
     users = graphene.List(User)
