@@ -1,8 +1,21 @@
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from project.api.models import User
+from project.api.models import User, ClassProfile, Quiz, Question, Answer
 from graphene import relay, ObjectType, Mutation
+from graphene.relay import Connection, ConnectionField
 import graphene
+
+class ClassProfileNode(DjangoObjectType):
+    class Meta:
+        model = ClassProfile
+        filter_fields = ['description', 'id']
+        interfaces = (relay.Node, )
+
+
+class ProfilesConnection(Connection):
+    class Meta:
+        node = ClassProfileNode
+
 
 class UserNode(DjangoObjectType):
     class Meta:
@@ -11,11 +24,15 @@ class UserNode(DjangoObjectType):
         exclude_fields = ('is_superuser', 'password')
         interfaces = (relay.Node, )
 
+    # class_profiles = relay.ConnectionField(ProfilesConnection)
+
+
 class UserInput(graphene.InputObjectType):
     username = graphene.String(required=True)
     name = graphene.String(required=True)
     email = graphene.String(required=True)
     password = graphene.String(required=True)
+
 
 class CreateUser(relay.ClientIDMutation):
     class Input:
@@ -34,9 +51,14 @@ class CreateUser(relay.ClientIDMutation):
         )
         return CreateUser(user=user, id=user.id)
 
+
 class Query(object):
     user = relay.Node.Field(UserNode)
     users = DjangoFilterConnectionField(UserNode)
+
+    profileClass = relay.Node.Field(ClassProfileNode)
+    classes = DjangoFilterConnectionField(ClassProfileNode)
+
 
 class Mutation(object):
     create_user = CreateUser.Field()

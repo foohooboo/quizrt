@@ -1,5 +1,5 @@
 import graphene
-from . import UserSchema
+from . import UserSchema, AnswerSchema, ClassProfileSchema, QuestionSchema, QuizSchema
 
 class Query(UserSchema.Query, graphene.ObjectType):
     pass
