@@ -2,21 +2,17 @@ from django.http import Http404
 
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from project.api.models import User, ClassProfile, Quiz, Question, Answer
+
 from graphene import relay, ObjectType, Mutation
 from graphene.relay import Connection, ConnectionField
 import graphene
 
-class ClassProfileNode(DjangoObjectType):
-    class Meta:
-        model = ClassProfile
-        filter_fields = ['description', 'id']
-        interfaces = (relay.Node, )
+from project.api.models import User, ClassProfile
+# from .ClassProfileSchema import ClassProfileNode
 
-
-class ProfilesConnection(Connection):
-    class Meta:
-        node = ClassProfileNode
+# class ProfilesConnection(Connection):
+#     class Meta:
+#         node = ClassProfileNode
 
 
 class UserNode(DjangoObjectType):
@@ -99,15 +95,12 @@ class UpdateUser(relay.ClientIDMutation):
         return UpdateUser(user=current_user, id=current_user.id)
 
 
-class Query(object):
+class Query(graphene.AbstractType):
     user = relay.Node.Field(UserNode)
     users = DjangoFilterConnectionField(UserNode)
 
-    profileClass = relay.Node.Field(ClassProfileNode)
-    classes = DjangoFilterConnectionField(ClassProfileNode)
 
-
-class Mutation(object):
+class Mutation(graphene.AbstractType):
     create_user = CreateUser.Field()
     delete_user = DeleteUser.Field()
     update_user = UpdateUser.Field()
