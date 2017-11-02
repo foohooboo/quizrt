@@ -9,7 +9,12 @@ class Query(UserSchema.Query,
             graphene.ObjectType):
     pass
 
-class Mutation(UserSchema.Mutation, graphene.ObjectType):
+class Mutation(UserSchema.Mutation,
+               ClassProfileSchema.Mutation,
+               QuizSchema.Mutation,
+               QuestionSchema.Mutation,
+               AnswerSchema.Mutation,
+               graphene.ObjectType):
     pass
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

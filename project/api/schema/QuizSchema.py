@@ -7,7 +7,7 @@ from graphene import relay, ObjectType, Mutation
 from graphene.relay import Connection, ConnectionField
 import graphene
 
-from project.api.models import Quiz
+from project.api.models import Quiz, ClassProfile
 
 
 class QuizNode(DjangoObjectType):
@@ -17,6 +17,34 @@ class QuizNode(DjangoObjectType):
         interfaces = (relay.Node, )
 
 
+class QuizInput(graphene.InputObjectType):
+    description = graphene.String(required=True)
+    is_public = graphene.Boolean(required=False)
+    profile = graphene.Int(required=True)
+
+
+class CreateQuiz(relay.ClientIDMutation):
+    class Input:
+        quiz_data = QuizInput(required=True)
+
+    quiz = graphene.Field(QuizNode)
+    id = graphene.Int()
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        quiz = Quiz.objects.create(
+            description=input['quiz_data'].description,
+            is_public=input['quiz_data'].is_public,
+            class_profile=ClassProfile.objects.get(id=input['quiz_data'].profile)
+        )
+        quiz.save()
+        return CreateQuiz(quiz=quiz, id=quiz.id)
+
+
 class Query(graphene.AbstractType):
         quizes = DjangoFilterConnectionField(QuizNode)
         quiz = relay.Node.Field(QuizNode)
+
+
+class Mutation(graphene.AbstractType):
+    create_quiz = CreateQuiz.Field()
