@@ -9,6 +9,8 @@ from . import Quiz
 class Question(models.Model):
     prompt = models.CharField(max_length=255, unique=True)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    uuid = models.SlugField(default=uuid.uuid4, editable=False)
+
 
     # def get_correct_answers(self):
     #     pass

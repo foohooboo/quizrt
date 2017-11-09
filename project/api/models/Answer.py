@@ -10,6 +10,8 @@ class Answer(models.Model):
     description = models.CharField(max_length=255)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     is_correct = models.BooleanField(default=False)
+    uuid = models.SlugField(default=uuid.uuid4, editable=False)
+
 
     def __str__(self):
         return "{0}:{1}".format(self.description, self.is_correct)
