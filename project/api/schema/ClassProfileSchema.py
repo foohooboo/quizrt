@@ -39,6 +39,28 @@ class CreateProfile(relay.ClientIDMutation):
         return CreateProfile(profile=profile, uuid=profile.uuid)
 
 
+class UpdateClassProfile(relay.ClientIDMutation):
+    class Input:
+        uuid = graphene.String(required=True)
+        description = graphene.String(required=False)
+        is_public = graphene.Boolean(required=False)
+
+
+    profile = graphene.Field(ClassProfileNode)
+    uuid = graphene.String()
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        # TODO: only allow modification of items owned by user
+        profile = ClassProfile.objects.get(uuid=input['uuid'])
+        if input['description']:
+            profile.description = input['description']
+        if input['is_public']:
+            profile.is_public = input['is_public']
+        profile.save()
+        return UpdateClassProfile(profile=profile, uuid=profile.uuid)
+
+
 class Query(graphene.AbstractType):
         classes = DjangoFilterConnectionField(ClassProfileNode)
         profileClass = relay.Node.Field(ClassProfileNode)
@@ -46,3 +68,4 @@ class Query(graphene.AbstractType):
 
 class Mutation(graphene.AbstractType):
     create_Profile = CreateProfile.Field()
+    update_Profile = UpdateClassProfile.Field()

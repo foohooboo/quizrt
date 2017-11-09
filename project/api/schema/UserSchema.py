@@ -75,7 +75,7 @@ class UpdateUser(relay.ClientIDMutation):
         user_data = UserInput(required=True)
 
     user = graphene.Field(UserNode)
-    id = graphene.Int()
+    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
@@ -92,7 +92,7 @@ class UpdateUser(relay.ClientIDMutation):
         else:
             raise Http404
         current_user.save()
-        return UpdateUser(user=current_user, id=current_user.id)
+        return UpdateUser(user=current_user, uuid=current_user.uuid)
 
 
 class Query(graphene.AbstractType):

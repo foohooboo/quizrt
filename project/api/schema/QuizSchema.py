@@ -41,6 +41,28 @@ class CreateQuiz(relay.ClientIDMutation):
         return CreateQuiz(quiz=quiz, uuid=quiz.uuid)
 
 
+class UpdateQuiz(relay.ClientIDMutation):
+    class Input:
+        uuid = graphene.String(required=True)
+        description = graphene.String(required=False)
+        is_public = graphene.Boolean(required=False)
+
+
+    quiz = graphene.Field(QuizNode)
+    uuid = graphene.String()
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        # TODO: only allow modification of items owned by user
+        quiz = Quiz.objects.get(uuid=input['uuid'])
+        if input['description']:
+            quiz.description = input['description']
+        if input['is_public']:
+            quiz.is_public = input['is_public']
+        quiz.save()
+        return UpdateQuiz(quiz=quiz, uuid=quiz.uuid)
+
+
 class Query(graphene.AbstractType):
         quizes = DjangoFilterConnectionField(QuizNode)
         quiz = relay.Node.Field(QuizNode)
@@ -48,3 +70,4 @@ class Query(graphene.AbstractType):
 
 class Mutation(graphene.AbstractType):
     create_quiz = CreateQuiz.Field()
+    update_quiz = UpdateQuiz.Field()

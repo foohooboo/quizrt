@@ -39,6 +39,25 @@ class CreateQuestion(relay.ClientIDMutation):
         return CreateQuestion(question=question, uuid=question.uuid)
 
 
+class UpdateQuestion(relay.ClientIDMutation):
+    class Input:
+        uuid = graphene.String(required=True)
+        prompt = graphene.String(required=False)
+
+
+    question = graphene.Field(QuestionNode)
+    uuid = graphene.String()
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        # TODO: only allow modification of items owned by user
+        question = Question.objects.get(uuid=input['uuid'])
+        if input['prompt']:
+            question.prompt = input['prompt']
+        question.save()
+        return UpdateQuestion(question=question, uuid=question.uuid)
+
+
 class Query(graphene.AbstractType):
         questions = DjangoFilterConnectionField(QuestionNode)
         question = relay.Node.Field(QuestionNode)
@@ -46,3 +65,4 @@ class Query(graphene.AbstractType):
 
 class Mutation(graphene.AbstractType):
     create_question = CreateQuestion.Field()
+    update_question = UpdateQuestion.Field()

@@ -39,6 +39,29 @@ class CreateAnswer(relay.ClientIDMutation):
         )
         return CreateAnswer(answer=answer, uuid=answer.uuid)
 
+
+class UpdateAnswer(relay.ClientIDMutation):
+    class Input:
+        uuid = graphene.String(required=True)
+        description = graphene.String(required=False)
+        is_correct = graphene.Boolean(required=False)
+
+
+    answer = graphene.Field(AnswerNode)
+    uuid = graphene.String()
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        # TODO: only allow modification of items owned by user
+        answer = Answer.objects.get(uuid=input['uuid'])
+        if input['description']:
+            answer.description = input['description']
+        if input['is_correct']:
+            answer.is_correct = input['is_correct']
+        answer.save()
+        return UpdateAnswer(answer=answer, uuid=answer.uuid)
+
+
 class Query(graphene.AbstractType):
         answers = DjangoFilterConnectionField(AnswerNode)
         answer = relay.Node.Field(AnswerNode)
@@ -46,3 +69,4 @@ class Query(graphene.AbstractType):
 
 class Mutation(graphene.AbstractType):
     create_answer = CreateAnswer.Field()
+    update_answer = UpdateAnswer.Field()
