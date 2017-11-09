@@ -27,7 +27,7 @@ class CreateProfile(relay.ClientIDMutation):
         profile_data = ProfileInput(required=True)
 
     profile = graphene.Field(ClassProfileNode)
-    id = graphene.Int()
+    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
@@ -36,7 +36,7 @@ class CreateProfile(relay.ClientIDMutation):
             is_public=input['profile_data'].is_public
         )
         profile.save()
-        return CreateProfile(profile=profile, id=profile.id)
+        return CreateProfile(profile=profile, uuid=profile.uuid)
 
 
 class Query(graphene.AbstractType):

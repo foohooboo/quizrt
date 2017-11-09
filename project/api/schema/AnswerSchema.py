@@ -19,7 +19,7 @@ class AnswerNode(DjangoObjectType):
 
 class AnswerInput(graphene.InputObjectType):
     description = graphene.String(required=True)
-    question = graphene.Int(required=True)
+    question = graphene.String(required=True)
     is_correct = graphene.Boolean(required=True)
 
 
@@ -28,16 +28,16 @@ class CreateAnswer(relay.ClientIDMutation):
         answer_data = AnswerInput(required=True)
 
     answer = graphene.Field(AnswerNode)
-    id = graphene.Int()
+    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
         answer = Answer.objects.create(
             description=input['answer_data'].description,
             is_correct=input['answer_data'].is_correct,
-            question=Question.objects.get(pk=input['answer_data'].question)
+            question=Question.objects.get(uuid=input['answer_data'].question)
         )
-        return CreateAnswer(answer=answer, id=answer.id)
+        return CreateAnswer(answer=answer, uuid=answer.uuid)
 
 class Query(graphene.AbstractType):
         answers = DjangoFilterConnectionField(AnswerNode)

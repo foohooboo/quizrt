@@ -19,7 +19,7 @@ class QuestionNode(DjangoObjectType):
 
 class QuestionInput(graphene.InputObjectType):
     prompt = graphene.String(required=True)
-    quiz = graphene.Int(required=True)
+    quiz = graphene.String(required=True)
 
 
 class CreateQuestion(relay.ClientIDMutation):
@@ -27,16 +27,16 @@ class CreateQuestion(relay.ClientIDMutation):
         question_data = QuestionInput(required=True)
 
     question = graphene.Field(QuestionNode)
-    id = graphene.Int()
+    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
         question = Question.objects.create(
             prompt=input['question_data'].prompt,
-            quiz=Quiz.objects.get(id=input['question_data'].quiz)
+            quiz=Quiz.objects.get(uuid=input['question_data'].quiz)
         )
         question.save()
-        return CreateQuestion(question=question, id=question.id)
+        return CreateQuestion(question=question, uuid=question.uuid)
 
 
 class Query(graphene.AbstractType):

@@ -35,7 +35,7 @@ class CreateUser(relay.ClientIDMutation):
         user_data = UserInput(required=True)
 
     user = graphene.Field(UserNode)
-    id = graphene.Int()
+    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
@@ -45,7 +45,7 @@ class CreateUser(relay.ClientIDMutation):
             email=input['user_data'].email,
             password=input['user_data'].password
         )
-        return CreateUser(user=user, id=user.id)
+        return CreateUser(user=user, uuid=user.uuid)
 
 
 class DeleteUser(relay.ClientIDMutation):
