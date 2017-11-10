@@ -39,6 +39,23 @@ class CreateProfile(relay.ClientIDMutation):
         return CreateProfile(profile=profile, uuid=profile.uuid)
 
 
+class DeleteClassProfile(relay.ClientIDMutation):
+    class Input:
+        uuid = graphene.String(required=True)
+
+
+    ok = graphene.Boolean()
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        try:
+            profile = ClassProfile.objects.get(uuid=input['uuid'])
+            profile.delete()
+            return DeleteClassProfile(ok=True)
+        except ClassProfile.DoesNotExist:
+            return DeleteClassProfile(ok=False)
+
+
 class UpdateClassProfile(relay.ClientIDMutation):
     class Input:
         uuid = graphene.String(required=True)
@@ -67,5 +84,6 @@ class Query(graphene.AbstractType):
 
 
 class Mutation(graphene.AbstractType):
-    create_Profile = CreateProfile.Field()
-    update_Profile = UpdateClassProfile.Field()
+    create_profile = CreateProfile.Field()
+    update_profile = UpdateClassProfile.Field()
+    delete_profile = DeleteClassProfile.Field()

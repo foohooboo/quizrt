@@ -40,6 +40,23 @@ class CreateAnswer(relay.ClientIDMutation):
         return CreateAnswer(answer=answer, uuid=answer.uuid)
 
 
+class DeleteAnswer(relay.ClientIDMutation):
+    class Input:
+        uuid = graphene.String()
+
+
+    ok = graphene.Boolean()
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        try:
+            answer = Answer.objects.get(uuid=input['uuid'])
+            answer.delete()
+            return DeleteAnswer(ok=True)
+        except Answer.DoesNotExist:
+            return DeleteAnswer(ok=False)
+
+
 class UpdateAnswer(relay.ClientIDMutation):
     class Input:
         uuid = graphene.String(required=True)
@@ -70,3 +87,4 @@ class Query(graphene.AbstractType):
 class Mutation(graphene.AbstractType):
     create_answer = CreateAnswer.Field()
     update_answer = UpdateAnswer.Field()
+    delete_answer = DeleteAnswer.Field()

@@ -50,24 +50,21 @@ class CreateUser(relay.ClientIDMutation):
 
 class DeleteUser(relay.ClientIDMutation):
     class Input:
-        user_data = UserInput(required=True)
+        uuid = graphene.String()
 
-    user_deleted = graphene.String()
+
+    ok = graphene.Boolean()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        input_username = input['user_data'].username
-        if not input_username:
-            raise Http404
         current_user = info.context.user
         if current_user.is_authenticated():
-            if current_user.is_superuser:
-                User.objects.filter(username=input_username).delete()
-            elif input_username == current_user.username:
-                User.objects.filter(username=input_username.username).delete()
-            else:
-                raise Http404
-            return DeleteUser(user_deleted=input_username.username)
+            if current_user.is_superuser or input['uuid'] == current_user.uuid:
+                try:
+                    User.objects.get(uuid=input['uuid']).delete()
+                    return DeleteUser(ok=True)
+                except User.DoesNotExist:
+                    return DeleteUser(ok=False)
 
 
 class UpdateUser(relay.ClientIDMutation):
