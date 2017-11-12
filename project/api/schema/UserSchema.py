@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.contrib.auth import authenticate, login, logout
 
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
@@ -92,12 +93,46 @@ class UpdateUser(relay.ClientIDMutation):
         return UpdateUser(user=current_user, uuid=current_user.uuid)
 
 
+class LoginUser(relay.ClientIDMutation):
+    class Input:
+        user_data = UserInput(required=True)
+
+    user = graphene.Field(UserNode)
+    uuid = graphene.String()
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        username = input['user_data'].username
+        password = input['user_data'].password
+        email = input['user_data'].email
+        # First check login with username
+        user = authenticate(info.context, username=username, password=password)
+        if user == None:
+            # Allow login with email instead of username
+            user = authenticate(info.context, email=email, password=password)
+        if user != None:
+            login(info.context, user)
+            return LoginUser(user=user, uuid=user.uuid)
+        else:
+            return LoginUser()
+        
+
+class LogoutUser(relay.ClientIDMutation):
+    
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        logout(info.context)
+        return LogoutUser()
+
+
 class Query(graphene.AbstractType):
     user = relay.Node.Field(UserNode)
     users = DjangoFilterConnectionField(UserNode)
 
 
 class Mutation(graphene.AbstractType):
+    login_user = LoginUser.Field()
+    logout_user = LogoutUser.Field()
     create_user = CreateUser.Field()
     delete_user = DeleteUser.Field()
     update_user = UpdateUser.Field()
