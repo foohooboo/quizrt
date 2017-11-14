@@ -93,30 +93,27 @@ class UpdateUser(relay.ClientIDMutation):
         return UpdateUser(user=current_user, uuid=current_user.uuid)
 
 
-class LoginInput(graphene.InputObjectType):
-    username = graphene.String(required=True)
-    password = graphene.String(required=True)
-
-
 class LoginUser(relay.ClientIDMutation):
     class Input:
-        user_data = LoginInput(required=True)
+        email = graphene.String(required=True)
+        password = graphene.String(required=True)
 
     user = graphene.Field(UserNode)
-    uuid = graphene.String()
+    uuid = graphene.UUID()
+    status = graphene.Int()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        username = input['user_data'].username
-        password = input['user_data'].password
+        email = input['email']
+        password = input['password']
         # check login with email
-        user = authenticate(info.context, email=username, password=password)
+        user = authenticate(info.context, email=email, password=password)
         if user != None:
             login(info.context, user)
-            return LoginUser(user=user, uuid=user.uuid)
+            return LoginUser(user=user, uuid=user.uuid, status=200)
         else:
-            return LoginUser()
-        
+            return LoginUser(user=None, uuid=None, status=401)
+
 
 class LogoutUser(relay.ClientIDMutation):
     

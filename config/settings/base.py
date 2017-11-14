@@ -36,6 +36,8 @@ DEBUG = to_bool(os.environ.get('DEBUG', False))
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'api.User'
+
 
 # Application definition
 
