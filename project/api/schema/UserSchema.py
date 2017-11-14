@@ -93,9 +93,14 @@ class UpdateUser(relay.ClientIDMutation):
         return UpdateUser(user=current_user, uuid=current_user.uuid)
 
 
+class LoginInput(graphene.InputObjectType):
+    username = graphene.String(required=True)
+    password = graphene.String(required=True)
+
+
 class LoginUser(relay.ClientIDMutation):
     class Input:
-        user_data = UserInput(required=True)
+        user_data = LoginInput(required=True)
 
     user = graphene.Field(UserNode)
     uuid = graphene.String()
@@ -104,12 +109,11 @@ class LoginUser(relay.ClientIDMutation):
     def mutate_and_get_payload(cls, root, info, **input):
         username = input['user_data'].username
         password = input['user_data'].password
-        email = input['user_data'].email
         # First check login with username
         user = authenticate(info.context, username=username, password=password)
         if user == None:
             # Allow login with email instead of username
-            user = authenticate(info.context, email=email, password=password)
+            user = authenticate(info.context, email=username, password=password)
         if user != None:
             login(info.context, user)
             return LoginUser(user=user, uuid=user.uuid)
