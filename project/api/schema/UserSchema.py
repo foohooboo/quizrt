@@ -109,11 +109,8 @@ class LoginUser(relay.ClientIDMutation):
     def mutate_and_get_payload(cls, root, info, **input):
         username = input['user_data'].username
         password = input['user_data'].password
-        # First check login with username
-        user = authenticate(info.context, username=username, password=password)
-        if user == None:
-            # Allow login with email instead of username
-            user = authenticate(info.context, email=username, password=password)
+        # check login with email
+        user = authenticate(info.context, email=username, password=password)
         if user != None:
             login(info.context, user)
             return LoginUser(user=user, uuid=user.uuid)
