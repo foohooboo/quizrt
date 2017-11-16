@@ -1,11 +1,10 @@
-from django.http import Http404
-
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
-from graphene import relay, ObjectType, Mutation
-from graphene.relay import Connection, ConnectionField
+from graphene import relay
 import graphene
+
+from graphql_relay import from_global_id
 
 from project.api.models import Answer, Question
 
@@ -13,13 +12,18 @@ from project.api.models import Answer, Question
 class AnswerNode(DjangoObjectType):
     class Meta:
         model = Answer
-        filter_fields = ['description', 'question', 'is_correct', 'id']
+        filter_fields = {
+            'description': ['icontains'],
+            'question': ['exact'],
+            'is_correct': ['exact'],
+            'id': ['exact']
+        }
         interfaces = (relay.Node, )
 
 
 class AnswerInput(graphene.InputObjectType):
     description = graphene.String(required=True)
-    question = graphene.String(required=True)
+    question = graphene.ID(required=True)
     is_correct = graphene.Boolean(required=True)
 
 
@@ -28,55 +32,54 @@ class CreateAnswer(relay.ClientIDMutation):
         answer_data = AnswerInput(required=True)
 
     answer = graphene.Field(AnswerNode)
-    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input['answer_data'].question)
         answer = Answer.objects.create(
             description=input['answer_data'].description,
             is_correct=input['answer_data'].is_correct,
-            question=Question.objects.get(uuid=input['answer_data'].question)
+            question=Question.objects.get(pk=rid[1])
         )
-        return CreateAnswer(answer=answer, uuid=answer.uuid)
+        return CreateAnswer(answer=answer)
 
 
 class DeleteAnswer(relay.ClientIDMutation):
     class Input:
-        uuid = graphene.String()
+        id = graphene.ID(required=True)
 
-
-    ok = graphene.Boolean()
+    success = graphene.Boolean()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input['id'])
         try:
-            answer = Answer.objects.get(uuid=input['uuid'])
+            answer = Answer.objects.get(pk=rid[1])
             answer.delete()
-            return DeleteAnswer(ok=True)
+            return DeleteAnswer(success=True)
         except Answer.DoesNotExist:
-            return DeleteAnswer(ok=False)
+            raise Exception('404 Not Found')
 
 
 class UpdateAnswer(relay.ClientIDMutation):
     class Input:
-        uuid = graphene.String(required=True)
+        id = graphene.ID(required=True)
         description = graphene.String(required=False)
         is_correct = graphene.Boolean(required=False)
 
-
     answer = graphene.Field(AnswerNode)
-    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input['id'])
         # TODO: only allow modification of items owned by user
-        answer = Answer.objects.get(uuid=input['uuid'])
+        answer = Answer.objects.get(pk=rid[1])
         if input['description']:
             answer.description = input['description']
         if input['is_correct']:
             answer.is_correct = input['is_correct']
         answer.save()
-        return UpdateAnswer(answer=answer, uuid=answer.uuid)
+        return UpdateAnswer(answer=answer)
 
 
 class Query(object):

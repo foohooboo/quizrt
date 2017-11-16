@@ -1,11 +1,10 @@
-from django.http import Http404
-
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
-from graphene import relay, ObjectType, Mutation
-from graphene.relay import Connection, ConnectionField
+from graphene import relay
 import graphene
+
+from graphql_relay import from_global_id
 
 from project.api.models import ClassProfile
 
@@ -13,7 +12,10 @@ from project.api.models import ClassProfile
 class ClassProfileNode(DjangoObjectType):
     class Meta:
         model = ClassProfile
-        filter_fields = ['description', 'id']
+        filter_fields = {
+            'description': ['icontains'],
+            'id': ['exact'],
+        }
         interfaces = (relay.Node, )
 
 
@@ -27,55 +29,58 @@ class CreateProfile(relay.ClientIDMutation):
         profile_data = ProfileInput(required=True)
 
     profile = graphene.Field(ClassProfileNode)
-    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        kwargs = {
+            "description": input['profile_data'].description
+        }
+        if input['profile_data'].get('is_public'):
+            kwargs['is_public'] = input['profile_data'].is_public
         profile = ClassProfile.objects.create(
-            description=input['profile_data'].description,
-            is_public=input['profile_data'].is_public
+            **kwargs
         )
         profile.save()
-        return CreateProfile(profile=profile, uuid=profile.uuid)
+        return CreateProfile(profile=profile)
 
 
 class DeleteClassProfile(relay.ClientIDMutation):
     class Input:
-        uuid = graphene.String(required=True)
+        id = graphene.ID(required=True)
 
-
-    ok = graphene.Boolean()
+    success = graphene.Boolean()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input['id'])
         try:
-            profile = ClassProfile.objects.get(uuid=input['uuid'])
+            profile = ClassProfile.objects.get(pk=rid[1])
             profile.delete()
-            return DeleteClassProfile(ok=True)
+            return DeleteClassProfile(success=True)
         except ClassProfile.DoesNotExist:
-            return DeleteClassProfile(ok=False)
+            raise Exception('404 Not Found')
 
 
 class UpdateClassProfile(relay.ClientIDMutation):
     class Input:
-        uuid = graphene.String(required=True)
+        id = graphene.ID(required=True)
         description = graphene.String(required=False)
         is_public = graphene.Boolean(required=False)
 
 
     profile = graphene.Field(ClassProfileNode)
-    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input['id'])
         # TODO: only allow modification of items owned by user
-        profile = ClassProfile.objects.get(uuid=input['uuid'])
-        if input['description']:
+        profile = ClassProfile.objects.get(pk=rid[1])
+        if input.get('description'):
             profile.description = input['description']
-        if input['is_public']:
+        if input.get('is_public'):
             profile.is_public = input['is_public']
         profile.save()
-        return UpdateClassProfile(profile=profile, uuid=profile.uuid)
+        return UpdateClassProfile(profile=profile)
 
 
 class Query(object):

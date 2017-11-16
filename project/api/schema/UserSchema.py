@@ -8,6 +8,8 @@ from graphene import relay, ObjectType, Mutation
 from graphene.relay import Connection, ConnectionField
 import graphene
 
+from graphql_relay import from_global_id
+
 from project.api.models import User, ClassProfile
 # from .ClassProfileSchema import ClassProfileNode
 
@@ -19,13 +21,17 @@ from project.api.models import User, ClassProfile
 class UserNode(DjangoObjectType):
     class Meta:
         model = User
-        filter_fields = ['username', 'email', 'id']
+        filter_fields = {
+            'name': ['exact', 'icontains'],
+            'username': ['exact', 'icontains'],
+            'email': ['exact']
+        }
         exclude_fields = ('is_superuser', 'password')
         interfaces = (relay.Node, )
 
 
 class UserInput(graphene.InputObjectType):
-    username = graphene.String(required=True)
+    username = graphene.String(required=False)
     name = graphene.String(required=True)
     email = graphene.String(required=True)
     password = graphene.String(required=True)
@@ -36,36 +42,40 @@ class CreateUser(relay.ClientIDMutation):
         user_data = UserInput(required=True)
 
     user = graphene.Field(UserNode)
-    uuid = graphene.String()
-
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        username = (input['user_data'].username
+                    if input['user_data'].username is not None
+                    else input['user_data'].email)
         user = User.objects.create_user(
-            username=input['user_data'].username,
+            username=username,
             name=input['user_data'].name,
             email=input['user_data'].email,
             password=input['user_data'].password
         )
-        return CreateUser(user=user, uuid=user.uuid)
+        return CreateUser(user=user)
 
 
 class DeleteUser(relay.ClientIDMutation):
     class Input:
-        uuid = graphene.String()
+        id = graphene.ID(required=True)
 
 
-    ok = graphene.Boolean()
+    success = graphene.Boolean()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input['id'])
         current_user = info.context.user
         if current_user.is_authenticated():
-            if current_user.is_superuser or input['uuid'] == current_user.uuid:
+            if rid[1] == current_user.id:
                 try:
-                    User.objects.get(uuid=input['uuid']).delete()
-                    return DeleteUser(ok=True)
+                    User.objects.get(pk=rid[1]).delete()
+                    return DeleteUser(success=True)
                 except User.DoesNotExist:
-                    return DeleteUser(ok=False)
+                    raise Exception('404 Not Found')
+            raise Exception('403 Forbidden')
+        raise Exception('401 Unauthorized')
 
 
 class UpdateUser(relay.ClientIDMutation):
@@ -73,10 +83,10 @@ class UpdateUser(relay.ClientIDMutation):
         user_data = UserInput(required=True)
 
     user = graphene.Field(UserNode)
-    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input['id'])
         current_user = info.context.user
         if current_user.is_authenticated():
             # TODO: Add functionality that allows superusers to edit other users
@@ -88,9 +98,9 @@ class UpdateUser(relay.ClientIDMutation):
                 current_user.email = input['user_data'].email
             # TODO:  Add password change functionality
         else:
-            raise Http404
+            raise Exception('403 Forbidden')
         current_user.save()
-        return UpdateUser(user=current_user, uuid=current_user.uuid)
+        return UpdateUser(user=current_user)
 
 
 class LoginUser(relay.ClientIDMutation):
@@ -99,8 +109,6 @@ class LoginUser(relay.ClientIDMutation):
         password = graphene.String(required=True)
 
     user = graphene.Field(UserNode)
-    uuid = graphene.UUID()
-    status = graphene.Int()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
@@ -110,9 +118,9 @@ class LoginUser(relay.ClientIDMutation):
         user = authenticate(info.context, email=email, password=password)
         if user != None:
             login(info.context, user)
-            return LoginUser(user=user, uuid=user.uuid, status=200)
+            return LoginUser(user=user)
         else:
-            return LoginUser(user=None, uuid=None, status=401)
+            raise Exception('401 Unauthorized')
 
 
 class LogoutUser(relay.ClientIDMutation):

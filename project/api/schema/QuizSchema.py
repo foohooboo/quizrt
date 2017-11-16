@@ -7,6 +7,8 @@ from graphene import relay, ObjectType, Mutation
 from graphene.relay import Connection, ConnectionField
 import graphene
 
+from graphql_relay import from_global_id
+
 from project.api.models import Quiz, ClassProfile
 
 
@@ -20,7 +22,7 @@ class QuizNode(DjangoObjectType):
 class QuizInput(graphene.InputObjectType):
     description = graphene.String(required=True)
     is_public = graphene.Boolean(required=False)
-    profile = graphene.String(required=True)
+    profile = graphene.ID(required=True)
 
 
 class CreateQuiz(relay.ClientIDMutation):
@@ -28,56 +30,56 @@ class CreateQuiz(relay.ClientIDMutation):
         quiz_data = QuizInput(required=True)
 
     quiz = graphene.Field(QuizNode)
-    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input['quiz_data'].profile)
         quiz = Quiz.objects.create(
             description=input['quiz_data'].description,
             is_public=input['quiz_data'].is_public,
-            class_profile=ClassProfile.objects.get(uuid=input['quiz_data'].profile)
+            class_profile=ClassProfile.objects.get(pk=rid[1])
         )
         quiz.save()
-        return CreateQuiz(quiz=quiz, uuid=quiz.uuid)
+        return CreateQuiz(quiz=quiz)
 
 
 class DeleteQuiz(relay.ClientIDMutation):
     class Input:
-        uuid = graphene.String(required=True)
+        id = graphene.ID(required=True)
 
-
-    ok = graphene.Boolean()
+    success = graphene.Boolean()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input['id'])
         try:
-            quiz = Quiz.objects.get(uuid=input['uuid'])
+            quiz = Quiz.objects.get(pk=rid[1])
             quiz.delete()
-            return DeleteQuiz(ok=True)
+            return DeleteQuiz(success=True)
         except Quiz.DoesNotExist:
-            return DeleteQuiz(ok=False)
+            raise Exception('404 Not Found')
 
 
 class UpdateQuiz(relay.ClientIDMutation):
     class Input:
-        uuid = graphene.String(required=True)
+        id = graphene.ID(required=True)
         description = graphene.String(required=False)
         is_public = graphene.Boolean(required=False)
 
 
     quiz = graphene.Field(QuizNode)
-    uuid = graphene.String()
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input['id'])
         # TODO: only allow modification of items owned by user
-        quiz = Quiz.objects.get(uuid=input['uuid'])
+        quiz = Quiz.objects.get(pk=rid[1])
         if input['description']:
             quiz.description = input['description']
         if input['is_public']:
             quiz.is_public = input['is_public']
         quiz.save()
-        return UpdateQuiz(quiz=quiz, uuid=quiz.uuid)
+        return UpdateQuiz(quiz=quiz)
 
 
 class Query(object):
