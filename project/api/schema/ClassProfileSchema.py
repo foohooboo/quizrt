@@ -78,12 +78,12 @@ class UpdateClassProfile(relay.ClientIDMutation):
         return UpdateClassProfile(profile=profile, uuid=profile.uuid)
 
 
-class Query(graphene.AbstractType):
+class Query(object):
         classes = DjangoFilterConnectionField(ClassProfileNode)
         profileClass = relay.Node.Field(ClassProfileNode)
 
 
-class Mutation(graphene.AbstractType):
+class Mutation(object):
     create_profile = CreateProfile.Field()
     update_profile = UpdateClassProfile.Field()
     delete_profile = DeleteClassProfile.Field()

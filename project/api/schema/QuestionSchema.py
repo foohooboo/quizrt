@@ -75,12 +75,12 @@ class UpdateQuestion(relay.ClientIDMutation):
         return UpdateQuestion(question=question, uuid=question.uuid)
 
 
-class Query(graphene.AbstractType):
+class Query(object):
         questions = DjangoFilterConnectionField(QuestionNode)
         question = relay.Node.Field(QuestionNode)
 
 
-class Mutation(graphene.AbstractType):
+class Mutation(object):
     create_question = CreateQuestion.Field()
     update_question = UpdateQuestion.Field()
     delete_question = DeleteQuestion.Field(0)

@@ -123,12 +123,12 @@ class LogoutUser(relay.ClientIDMutation):
         return LogoutUser()
 
 
-class Query(graphene.AbstractType):
+class Query(object):
     user = relay.Node.Field(UserNode)
     users = DjangoFilterConnectionField(UserNode)
 
 
-class Mutation(graphene.AbstractType):
+class Mutation(object):
     login_user = LoginUser.Field()
     logout_user = LogoutUser.Field()
     create_user = CreateUser.Field()
