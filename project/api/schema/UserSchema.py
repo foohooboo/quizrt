@@ -121,7 +121,7 @@ class LoginUser(relay.ClientIDMutation):
         email = graphene.String(required=True)
         password = graphene.String(required=True)
 
-    user = graphene.Field(UserNode)
+    user = graphene.Field(UserNode, required=True)
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
