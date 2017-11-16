@@ -5,7 +5,7 @@ from django.db import models
 from . import Quiz
 
 class Question(models.Model):
-    prompt = models.CharField(max_length=255, unique=True)
+    prompt = models.CharField(max_length=255)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
 
     # def get_correct_answers(self):

@@ -14,14 +14,16 @@ class ClassProfileNode(DjangoObjectType):
         model = ClassProfile
         filter_fields = {
             'description': ['icontains'],
+            'name': ['exact', 'icontains'],
             'id': ['exact'],
         }
         interfaces = (relay.Node, )
 
 
 class ProfileInput(graphene.InputObjectType):
+    name = graphene.String(required=True)
     description = graphene.String(required=True)
-    is_public = graphene.Boolean(required=False)
+    is_private = graphene.Boolean(required=False)
 
 
 class CreateProfile(relay.ClientIDMutation):
@@ -33,14 +35,20 @@ class CreateProfile(relay.ClientIDMutation):
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
         kwargs = {
-            "description": input['profile_data'].description
+            "description": input['profile_data'].description,
+            "name": input['profile_data'].name
         }
-        if input['profile_data'].get('is_public'):
-            kwargs['is_public'] = input['profile_data'].is_public
-        profile = ClassProfile.objects.create(
-            **kwargs
-        )
+        if input['profile_data'].get('is_private'):
+            kwargs['is_private'] = input['profile_data'].is_private
+        profile = ClassProfile.objects.create( **kwargs )
         profile.save()
+
+        current_user = info.context.user
+
+        if current_user.is_authenticated():
+            current_user.class_profiles.add(profile)
+            current_user.save()
+
         return CreateProfile(profile=profile)
 
 
@@ -65,7 +73,7 @@ class UpdateClassProfile(relay.ClientIDMutation):
     class Input:
         id = graphene.ID(required=True)
         description = graphene.String(required=False)
-        is_public = graphene.Boolean(required=False)
+        is_private = graphene.Boolean(required=False)
 
 
     profile = graphene.Field(ClassProfileNode)
@@ -77,15 +85,15 @@ class UpdateClassProfile(relay.ClientIDMutation):
         profile = ClassProfile.objects.get(pk=rid[1])
         if input.get('description'):
             profile.description = input['description']
-        if input.get('is_public'):
-            profile.is_public = input['is_public']
+        if input.get('is_private'):
+            profile.is_private = input['is_private']
         profile.save()
         return UpdateClassProfile(profile=profile)
 
 
 class Query(object):
-        classes = DjangoFilterConnectionField(ClassProfileNode)
-        profileClass = relay.Node.Field(ClassProfileNode)
+        profiles = DjangoFilterConnectionField(ClassProfileNode)
+        profile = relay.Node.Field(ClassProfileNode)
 
 
 class Mutation(object):
