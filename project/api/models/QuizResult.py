@@ -4,5 +4,5 @@ from django.db import models
 
 class QuizResult(models.Model):
     # Contains Responses which reference the QuizResult
-    pass
-    
+    def __str__(self):
+        return "QuizResult"
