@@ -5,3 +5,4 @@ from django.db import models
 class QuizResult(models.Model):
     # Contains Responses which reference the QuizResult
     pass
+    

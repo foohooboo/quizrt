@@ -12,3 +12,4 @@ class QuizSession(models.Model):
 
     def __str__(self):
         return "QuizSession for " + self.quiz.__str__()
+    
