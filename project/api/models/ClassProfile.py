@@ -1,17 +1,16 @@
 from __future__ import unicode_literals
 
-import uuid
-
 from django.db import models
 
 class ClassProfile(models.Model):
-    description = models.CharField(max_length=255, unique=True)
-    is_public = models.BooleanField(default=True)
-    uuid = models.SlugField(default=uuid.uuid4, editable=False)
-
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    is_private = models.BooleanField(default=False)
 
     def __str__(self):
         return self.description
 
-    class Meta:
-        ordering = ('description',)
+    # Not sure if we need this, and the docs say it adds a performance cost
+    # It might have been useful when description was required to be unique
+    # class Meta:
+    #    ordering = ('description',)

@@ -216,3 +216,13 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+.idea
+.vscode
+
+.venv2
+
+# this should really be covered by a global gitignore
+# but some of us don't have those, and it'd be too much
+# effort to fix
+.DS_Store

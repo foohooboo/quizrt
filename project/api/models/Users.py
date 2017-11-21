@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-import uuid
-
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser,
                                         BaseUserManager)
@@ -50,7 +48,6 @@ class User(AbstractBaseUser):
     username = models.CharField(_('username'), max_length=255, unique=True)
     name = models.CharField(_('name'), max_length=255, blank=True)
     class_profiles = models.ManyToManyField(ClassProfile)
-    uuid = models.SlugField(default=uuid.uuid4, editable=False)
 
 
     objects = UserManager()
