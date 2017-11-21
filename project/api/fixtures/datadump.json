@@ -1,0 +1,85 @@
+[
+{
+    "model": "api.classprofile",
+    "pk": 10,
+    "fields": {
+        "name": "A Profile",
+        "description": "first profile",
+        "is_private": false
+    }
+},
+{
+    "model": "api.classprofile",
+    "pk": 13,
+    "fields": {
+        "name": "1profile",
+        "description": "another profile",
+        "is_private": true
+    }
+},
+{
+    "model": "api.user",
+    "pk": 4,
+    "fields": {
+        "password": "pbkdf2_sha256$36000$LokLIeTprEcw$VgSme/m1ze5UPS2SxnuI7csOWvqs6S3W+yeUij6rkmM=",
+        "last_login": null,
+        "email": "foohooboo@test.com",
+        "username": "foohooboo",
+        "name": "Daniel Evans",
+        "class_profiles": [
+            10,
+            13
+        ]
+    }
+},
+{
+    "model": "api.user",
+    "pk": 7,
+    "fields": {
+        "password": "pbkdf2_sha256$36000$2kQKhPWNepq7$TkKPivVJGULZcd48GiG3QKQuYTV6EWjInvyl+YSEEUA=",
+        "last_login": null,
+        "email": "andy@test.com",
+        "username": "Andres",
+        "name": "andy",
+        "class_profiles": [
+            13
+        ]
+    }
+},
+{
+    "model": "api.quiz",
+    "pk": 5,
+    "fields": {
+        "name": "A Quiz",
+        "description": "whoobywhooby",
+        "is_private": false,
+        "class_profile": 10
+    }
+},
+{
+    "model": "api.question",
+    "pk": 3,
+    "fields": {
+        "prompt": "what is yadaaaaaa?",
+        "quiz": 5
+    }
+},
+{
+    "model": "api.answer",
+    "pk": 9,
+    "fields": {
+        "description": "hooodooooooooobeeeeee",
+        "question": 3,
+        "is_correct": true
+    }
+},
+{
+    "model": "api.answer",
+    "pk": 16,
+    "fields": {
+        "description": "second answer is false",
+        "question": 3,
+        "is_correct": false
+    }
+}
+]
