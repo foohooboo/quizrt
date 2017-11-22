@@ -84,11 +84,13 @@
 },
 {
     "model": "api.quizresult",
-    "pk": 1
+    "pk": 1,
+    "fields": {}
 },
 {
     "model": "api.quizresult",
-    "pk": 2
+    "pk": 2,
+    "fields": {}
 },
 {
     "model": "api.response",
