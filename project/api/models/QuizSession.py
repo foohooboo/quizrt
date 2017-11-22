@@ -10,6 +10,8 @@ class QuizSession(models.Model):
     quiz_result = models.ForeignKey(QuizResult, on_delete=models.CASCADE)
     is_locked = models.BooleanField(default=False)
 
+    # NOTE: It is possible to have a quiz result that does not match the quiz
+    
     def __str__(self):
         return "QuizSession for " + self.quiz.__str__()
     

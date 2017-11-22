@@ -81,5 +81,49 @@
         "question": 3,
         "is_correct": false
     }
+},
+{
+    "model": "api.quizresult",
+    "pk": 1
+},
+{
+    "model": "api.quizresult",
+    "pk": 2
+},
+{
+    "model": "api.response",
+    "pk": 1,
+    "fields": {
+        "user": 7,
+        "answer": 9,
+        "quiz_result": 1
+    }
+},
+{
+    "model": "api.response",
+    "pk": 2,
+    "fields": {
+        "user": 4,
+        "answer": 16,
+        "quiz_result": 1
+    }
+},
+{
+    "model": "api.response",
+    "pk": 3,
+    "fields": {
+        "user": 4,
+        "answer": 9,
+        "quiz_result": 2
+    }
+},
+{
+    "model": "api.quizsession",
+    "pk": 1,
+    "fields": {
+        "user": 4,
+        "quiz": 5,
+        "quiz_result": 1
+    }
 }
 ]

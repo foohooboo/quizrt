@@ -1,10 +1,18 @@
+import datetime
+
 from django.test import TestCase, Client
 from django.db import IntegrityError
 
 from .models import User, ClassProfile, Quiz, Question, Answer
+from .models import QuizResult, Response, QuizSession
 
 class QuizrtTests(TestCase):
     fixtures = ['datadump.json']
+
+    user1 = None
+    quiz_result1 = None
+    response1 = None
+    quiz_session1 = None
 
     def test_fixture_success(self):
         self.assertTrue(User.objects.all().count() > 0)
@@ -17,6 +25,8 @@ class QuizrtTests(TestCase):
             password="meo12345"
         )
         self.assertEqual(user.username, "validUserName")
+        # ASSIGN THIS TO USE LATER
+        self.user1 = user
 
     def test_create_user_no_email(self):
         with self.assertRaises(TypeError):
@@ -84,3 +94,45 @@ class QuizrtTests(TestCase):
             question = Question.objects.get(pk=3)
         )
         self.assertTrue(answer.is_correct)
+
+    def test_create_quiz_result(self):
+        today = datetime.date.today()
+        quiz_result = QuizResult.objects.create(date=today)
+        self.assertEqual(quiz_result.date, today)
+        # ASSIGN THIS TO USE LATER
+        self.quiz_result1 = quiz_result
+
+    def test_create_quiz_result_without_date(self):
+        quiz_result = QuizResult.objects.create()
+        self.assertIsNotNone(quiz_result)
+    
+    def test_create_response(self):
+        response = Response.objects.create(
+            user = self.user1,
+            answer = Answer.objects.get(pk=16),
+            quiz_result = self.quiz_result1
+        )
+        self.assertTrue(response.user == self.user1)
+        # ASSIGN THIS TO USE LATER
+        self.response1 = response
+
+    def test_create_quiz_session(self):
+        session = QuizSession.objects.create(
+            owner = User.objects.get(pk=7),
+            quiz = Quiz.objects.get(pk=5),
+            quiz_result = self.quiz_result1
+        )
+        self.assertTrue(session.quiz_result == self.quiz_result1)
+        # ASSIGN THIS TO USE LATER
+        self.quiz_session1 = session
+
+    def test_access_response_from_session(self):
+        response_set = self.quiz_session1.quiz_result.response_set.all()
+        contains_response = False
+        if self.response1 in response_set:
+            contains_response = True
+        self.assertTrue(contains_response)
+
+
+    
+    
