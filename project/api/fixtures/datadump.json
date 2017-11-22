@@ -123,7 +123,7 @@
     "model": "api.quizsession",
     "pk": 1,
     "fields": {
-        "user": 4,
+        "owner": 4,
         "quiz": 5,
         "quiz_result": 1
     }
