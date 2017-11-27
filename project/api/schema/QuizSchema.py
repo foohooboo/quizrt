@@ -18,7 +18,6 @@ class QuizNode(DjangoObjectType):
             'id': ['exact'],
             'is_private': ['exact']
         }
-
         interfaces = (relay.Node, )
 
 

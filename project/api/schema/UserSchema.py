@@ -42,6 +42,7 @@ class CreateUser(relay.ClientIDMutation):
         password = graphene.String(required=True)
 
     user = graphene.Field(UserNode)
+    
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
         username = (input.get('username')

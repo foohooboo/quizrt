@@ -14,12 +14,18 @@ from project.api.models import Question, Quiz
 class QuestionNode(DjangoObjectType):
     class Meta:
         model = Question
-        filter_fields = ['prompt', 'id', 'quiz']
+        filter_fields = {
+            'prompt': ['exact', 'icontains'],
+            'id': ['exact'],
+            'quiz': ['exact'],
+            'name': ['exact', 'icontains']
+        }
         interfaces = (relay.Node, )
 
 
 class QuestionInput(graphene.InputObjectType):
     prompt = graphene.String(required=True)
+    name = graphene.String(required=True)
     quiz = graphene.ID(required=True)
 
 
@@ -31,9 +37,10 @@ class CreateQuestion(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['question_data'].quiz)
+        rid = from_global_id(input['question_data'].get('quiz'))
         question = Question.objects.create(
-            prompt=input['question_data'].prompt,
+            prompt=input['question_data'].get('prompt'),
+            name=input['question_data'].get('name'),
             quiz=Quiz.objects.get(pk=rid[1]))
         question.save()
         return CreateQuestion(question=question)
@@ -60,6 +67,7 @@ class UpdateQuestion(relay.ClientIDMutation):
     class Input:
         id = graphene.ID(required=True)
         prompt = graphene.String(required=False)
+        name = graphene.String(required=False)
 
     question = graphene.Field(QuestionNode)
 
@@ -70,13 +78,15 @@ class UpdateQuestion(relay.ClientIDMutation):
         question = Question.objects.get(pk=rid[1])
         if input['prompt']:
             question.prompt = input['prompt']
+        if input['name']:
+            question.name = input['name']
         question.save()
         return UpdateQuestion(question=question)
 
 
 class Query(object):
-        questions = DjangoFilterConnectionField(QuestionNode)
-        question = relay.Node.Field(QuestionNode)
+    questions = DjangoFilterConnectionField(QuestionNode)
+    question = relay.Node.Field(QuestionNode)
 
 
 class Mutation(object):
