@@ -8,9 +8,4 @@ class ClassProfile(models.Model):
     is_private = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.description
-
-    # Not sure if we need this, and the docs say it adds a performance cost
-    # It might have been useful when description was required to be unique
-    # class Meta:
-    #    ordering = ('description',)
+        return self.name

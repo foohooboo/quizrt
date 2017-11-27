@@ -12,4 +12,4 @@ class Quiz(models.Model):
 
 
     def __str__(self):
-        return self.description
+        return self.name
