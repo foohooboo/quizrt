@@ -6,5 +6,5 @@ class QuizResult(models.Model):
     # -AA- Contains Responses which reference the QuizResult
     # -DE- For my own dislexia, this relation is reflected in the
     # Response model's quiz_result property
-    date = models.DateField(blank=True, null=True)
+    date = models.DateTimeField(blank=True, null=True)
     
