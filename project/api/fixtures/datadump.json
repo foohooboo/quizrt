@@ -18,6 +18,15 @@
     }
 },
 {
+    "model": "api.classprofile",
+    "pk": 14,
+    "fields": {
+        "name": "testing the dictionary access modifications",
+        "description": "hoping that the dictionary changes are working",
+        "is_private": false
+    }
+},
+{
     "model": "api.user",
     "pk": 4,
     "fields": {
@@ -67,6 +76,16 @@
     }
 },
 {
+    "model": "api.quiz",
+    "pk": 7,
+    "fields": {
+        "name": "Behold, the newest quiz.",
+        "description": "My spelling is correct.",
+        "is_private": false,
+        "class_profile": 10
+    }
+},
+{
     "model": "api.question",
     "pk": 3,
     "fields": {
@@ -89,12 +108,23 @@
     }
 },
 {
+    "model": "api.question",
+    "pk": 5,
+    "fields": {
+        "prompt": "is that name a bit creepy?",
+        "quiz": 5,
+        "name": "howdy, ma'am?",
+        "order_number": 2,
+        "question_duration": 42
+    }
+},
+{
     "model": "api.answer",
     "pk": 9,
     "fields": {
-        "description": "hooodooooooooobeeeeee",
+        "description": "This should now be a false answer!",
         "question": 3,
-        "is_correct": true
+        "is_correct": false
     }
 },
 {
@@ -104,6 +134,30 @@
         "description": "second answer is false",
         "question": 3,
         "is_correct": false
+    }
+},
+{
+    "model": "api.quizsession",
+    "pk": 1,
+    "fields": {
+        "owner": 4,
+        "quiz": 5,
+        "is_locked": false,
+        "session_date": "2017-11-29T03:56:48.711Z",
+        "current_question": "",
+        "display_results": false
+    }
+},
+{
+    "model": "api.quizsession",
+    "pk": 2,
+    "fields": {
+        "owner": 7,
+        "quiz": 7,
+        "is_locked": true,
+        "session_date": "2017-11-29T05:05:30.299Z",
+        "current_question": "",
+        "display_results": false
     }
 },
 {
@@ -134,15 +188,6 @@
         "answer": 9,
         "quiz_session": 1,
         "response_delay": 15
-    }
-},
-{
-    "model": "api.quizsession",
-    "pk": 1,
-    "fields": {
-        "owner": 4,
-        "quiz": 5,
-        "is_locked": false
     }
 }
 ]
