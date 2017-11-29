@@ -8,36 +8,35 @@ from graphene.relay import Connection, ConnectionField
 from graphql_relay import from_global_id
 import graphene
 
-from project.api.models import QuizSession, QuizResult, User, Quiz
+from project.api.models import QuizSession, User, Quiz
 
 class SessionNode(DjangoObjectType):
     class Meta:
         model = QuizSession
-        filter_fields = ['owner', 'quiz', 'quiz_result', 'is_locked']
+        filter_fields = ['owner', 'quiz', 'is_locked']
         interfaces = (relay.Node, )
 
 
-class SessionInput(graphene.InputObjectType):
-    owner = graphene.ID(required=True)
-    quiz = graphene.ID(required=True)
-    quiz_result = graphene.ID(required=True)
+# class SessionInput(graphene.InputObjectType):
+#     owner = graphene.ID(required=True)
+#     quiz = graphene.ID(required=True)
 
 
 class CreateSession(relay.ClientIDMutation):
     class Input:
-        session_data = SessionInput(required=True)
+        # session_data = SessionInput(required=True)
+        owner = graphene.ID(required=True)
+        quiz = graphene.ID(required=True)
 
     session = graphene.Field(SessionNode)
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        user_ID = from_global_id(input['session_data'].get(user)) 
-        quiz_ID = from_global_id(input['session_data'].get(quiz)) 
-        result_ID = from_global_id(input['session_data'].get(quiz_result)) 
+        user_ID = from_global_id(input.get('owner')) 
+        quiz_ID = from_global_id(input.get('quiz')) 
         kwargs = {
             "owner": User.objects.get(pk=user_ID[1]),
-            "quiz": Answer.objects.get(pk=quiz_ID[1]),
-            "quiz_result": QuizResult.objects.get(pk=result_ID[1]),
+            "quiz": Quiz.objects.get(pk=quiz_ID[1]),
         }
         session = QuizSession.objects.create(**kwargs)
         session.save()
@@ -52,7 +51,7 @@ class DeleteSession(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['id'])
+        rid = from_global_id(input.get('id'))
         try:
             session = QuizSession.objects.get(pk=rid[1])
             session.delete()
@@ -70,13 +69,16 @@ class CloseSession(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['id'])
+        rid = from_global_id(input.get('id'))
         session = QuizSession.objects.get(pk=rid[1])
         # if(input['is_locked']):
         #     session.is_locked = input['is_locked']
         session.is_locked = True
         session.save()
-        return UpdateSession(session=session)
+        return CloseSession(session=session)
+
+
+# if you're looking for the UpdateSession, i'm not sure we need it
 
 
 class Query(object):

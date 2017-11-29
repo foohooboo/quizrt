@@ -8,7 +8,7 @@ from graphene.relay import Connection, ConnectionField
 from graphql_relay import from_global_id
 import graphene
 
-from project.api.models import User, Answer, Response, QuizResult
+from project.api.models import User, Answer, Response, QuizSession
 
 class ResponseNode(DjangoObjectType):
     class Meta:
@@ -17,35 +17,44 @@ class ResponseNode(DjangoObjectType):
             'user': ['exact'],
             'answer': ['exact'],
             'id': ['exact'],
-            'quiz_result': ['exact']
+            'quiz_session': ['exact']
         }
         interfaces = (relay.Node, )
 
 
-class ResponseInput(graphene.InputObjectType):
-    user = graphene.ID(required=True)
-    answer = graphene.ID(required=True)
-    quiz_result = graphene.ID(required=True)
+# class ResponseInput(graphene.InputObjectType):
+#     user = graphene.ID(required=True)
+#     answer = graphene.ID(required=True)
+#     quiz_session = graphene.ID(required=True)
+#     response_delay = graphene.Int(required=True)
 
 class CreateResponse(relay.ClientIDMutation):
     class Input:
-        response_data = ResponseInput(required=True)
+        # response_data = ResponseInput(required=True)
+        user = graphene.ID(required=True)
+        answer = graphene.ID(required=True)
+        quiz_session = graphene.ID(required=True)
+        response_delay = graphene.Int(required=False)
 
     response = graphene.Field(ResponseNode)
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        user_ID = from_global_id(input['response_data'].get(user)) 
-        answer_ID = from_global_id(input['response_data'].get(answer)) 
-        result_ID = from_global_id(input['response_data'].get(quiz_result)) 
+        user_ID = from_global_id(input.get('user')) 
+        answer_ID = from_global_id(input.get('answer')) 
+        session_ID = from_global_id(input.get('quiz_session')) 
         kwargs = {
             "user": User.objects.get(pk=user_ID[1]),
             "answer": Answer.objects.get(pk=answer_ID[1]),
-            "quiz_result": QuizResult.objects.get(pk=result_ID[1]),
+            "quiz_session": QuizSession.objects.get(pk=session_ID[1]),
+            "response_delay": input.get('response_delay')
         }
-        response = Response.objects.create(**kwargs)
-        response.save()
-        return CreateResponse(response=response)
+        if(QuizSession.objects.get(pk=session_ID[1]).is_locked):
+            raise Exception('403 Forbidden')
+        else:
+            response = Response.objects.create(**kwargs)
+            response.save()
+            return CreateResponse(response=response)
 
 
 class DeleteResponse(relay.ClientIDMutation):
@@ -56,7 +65,7 @@ class DeleteResponse(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['id'])
+        rid = from_global_id(input.get('id'))
         try:
             response = Response.objects.get(pk=rid[1])
             response.delete()
@@ -64,10 +73,8 @@ class DeleteResponse(relay.ClientIDMutation):
         except Response.DoesNotExist:
             raise Exception('404 Not Found')
 
-# Belaying this mutation.  Kinda don't think it should be a thing
-# class UpdateResponse(relay.ClientIDMutation):
-#     class Input:
-#         id = graphene.ID(required=True)
+
+# Deleted the UpdateResponse as well.  Kinda don't think it should be a thing
 
 
 class Query(object):

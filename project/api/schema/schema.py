@@ -6,7 +6,6 @@ from . import (UserSchema,
                QuizSchema,
                ResponseSchema,
                QuizSessionSchema,
-               QuizResultSchema,
               )
 
 class Query(UserSchema.Query,
@@ -16,7 +15,6 @@ class Query(UserSchema.Query,
             AnswerSchema.Query,
             ResponseSchema.Query,
             QuizSessionSchema.Query,
-            QuizResultSchema.Query,
             graphene.ObjectType):
     pass
 
@@ -27,7 +25,6 @@ class Mutation(UserSchema.Mutation,
                AnswerSchema.Mutation,
                ResponseSchema.Mutation,
                QuizSessionSchema.Mutation, 
-               QuizResultSchema.Mutation,              
                graphene.ObjectType):
     pass
 

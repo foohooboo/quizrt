@@ -35,11 +35,11 @@ class CreateProfile(relay.ClientIDMutation):
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
         kwargs = {
-            "description": input['profile_data'].description,
-            "name": input['profile_data'].name
+            "description": input['profile_data'].get('description'),
+            "name": input['profile_data'].get('name')
         }
         if input['profile_data'].get('is_private'):
-            kwargs['is_private'] = input['profile_data'].is_private
+            kwargs['is_private'] = input['profile_data'].get('is_private')
         profile = ClassProfile.objects.create( **kwargs )
         profile.save()
 
@@ -60,7 +60,7 @@ class DeleteClassProfile(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['id'])
+        rid = from_global_id(input.get('id'))
         try:
             profile = ClassProfile.objects.get(pk=rid[1])
             profile.delete()
@@ -74,18 +74,19 @@ class UpdateClassProfile(relay.ClientIDMutation):
         id = graphene.ID(required=True)
         description = graphene.String(required=False)
         is_private = graphene.Boolean(required=False)
+        name = graphene.String(required=False)
 
 
     profile = graphene.Field(ClassProfileNode)
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['id'])
+        rid = from_global_id(input.get('id'))
         # TODO: only allow modification of items owned by user
         profile = ClassProfile.objects.get(pk=rid[1])
         if input.get('description'):
             profile.description = input['description']
-        if input.get('is_private'):
+        if input.get('is_private') is not None:
             profile.is_private = input['is_private']
         profile.save()
         return UpdateClassProfile(profile=profile)

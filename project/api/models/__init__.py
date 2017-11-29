@@ -1,20 +1,17 @@
 from .Users import User
 from .ClassProfile import ClassProfile
-from .QuizResult import QuizResult
 from .Quiz import Quiz
 from .Question import Question
 from .Answer import Answer
-from .Response import Response
-
 from .QuizSession import QuizSession
+from .Response import Response
 
 __all__ = [
     User,
     ClassProfile,
-    QuizResult,
     Quiz,
+    QuizSession,
     Question,
     Answer,
     Response,
-    QuizSession,
 ]
