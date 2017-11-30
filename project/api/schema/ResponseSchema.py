@@ -17,7 +17,8 @@ class ResponseNode(DjangoObjectType):
             'user': ['exact'],
             'answer': ['exact'],
             'id': ['exact'],
-            'quiz_session': ['exact']
+            'quiz_session': ['exact'],
+            'question': ['exact']
         }
         interfaces = (relay.Node, )
 
