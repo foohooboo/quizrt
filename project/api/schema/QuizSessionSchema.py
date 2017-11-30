@@ -148,3 +148,5 @@ class Mutation(object):
     create_session = CreateSession.Field()
     delete_session = DeleteSession.Field()
     close_session = CloseSession.Field()
+    display_results = DisplayResults.Field()
+    advance_question = AdvanceQuestion.Field()
