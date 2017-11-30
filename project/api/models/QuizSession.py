@@ -11,7 +11,7 @@ class QuizSession(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     is_locked = models.BooleanField(default=False)
     session_date = models.DateTimeField(default=timezone.now)
-    current_question = models.CharField(max_length=255, default='')
+    current_question = models.ForeignKey(Quiz, on_delete=models.SET_NULL, null=True)
     display_results = models.BooleanField(default=False)
 
     # @property

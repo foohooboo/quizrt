@@ -78,12 +78,70 @@ class CloseSession(relay.ClientIDMutation):
         return CloseSession(session=session)
 
 
+class DisplayResults(relay.ClientIDMutation):
+    class Input:
+        id = graphene.ID(required=True)
+
+    session = graphene.Field(SessionNode)
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input.get('id'))
+        session = QuizSession.objects.get(pk=rid[1])
+        session.display_results = True
+        session.save()
+        return DisplayResults(session=session)
+
+
+class AdvanceQuestion(relay.ClientIDMutation):
+    class Input:
+        id = graphene.ID(required=True)
+
+    session = graphene.Field(SessionNode)
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **input):
+        rid = from_global_id(input.get('id'))
+        session = QuizSession.objects.get(pk=rid[1])
+        curr_question_order = session.current_question.order_number
+        for question in session.quiz.question_set.all():
+            if question.order_number == curr_question_order:
+                session.current_question = question
+                session.display_results = False
+                session.save()
+                return AdvanceQuestion(session=session)
+            else:
+                curr_question_order += 1
+        session.current_question = None
+        session.display_results = False
+        session.save()
+        return AdvanceQuestion(session=session)
+
 # if you're looking for the UpdateSession, i'm not sure we need it
+
+# class UserScoresType(DjangoObjectType):
+#     class Meta:
+#         model = QuizSession
 
 
 class Query(object):
     sessions = DjangoFilterConnectionField(SessionNode)
     session = relay.Node.Field(SessionNode)
+    # user_scores = graphene.Field(UserScoresType,
+    #                           id=graphene.Int(),
+    #                           name=graphene.String())
+
+    # def resolve_user_scores(self, info, **kwargs):
+    #     id = kwargs.get('id')
+    #     name = kwargs.get('name')
+
+    #     if id is not None:
+    #         return Category.objects.get(pk=id)
+
+    #     if name is not None:
+    #         return Category.objects.get(name=name)
+
+    #     return None
 
 
 class Mutation(object):
