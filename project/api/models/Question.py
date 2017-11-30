@@ -7,9 +7,9 @@ from . import Quiz
 class Question(models.Model):
     prompt = models.CharField(max_length=255)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-
-    # def get_correct_answers(self):
-    #     pass
+    name = models.CharField(max_length=255, default='')
+    order_number = models.IntegerField(default=0)
+    question_duration = models.IntegerField(default=30)
 
     def __str__(self):
-        return self.prompt
+        return self.name

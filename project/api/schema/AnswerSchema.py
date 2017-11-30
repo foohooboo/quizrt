@@ -35,10 +35,10 @@ class CreateAnswer(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['answer_data'].question)
+        rid = from_global_id(input['answer_data'].get(question))
         answer = Answer.objects.create(
-            description=input['answer_data'].description,
-            is_correct=input['answer_data'].is_correct,
+            description=input['answer_data'].get(description),
+            is_correct=input['answer_data'].get(is_correct),
             question=Question.objects.get(pk=rid[1])
         )
         return CreateAnswer(answer=answer)
@@ -52,7 +52,7 @@ class DeleteAnswer(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['id'])
+        rid = from_global_id(input.get(id))
         try:
             answer = Answer.objects.get(pk=rid[1])
             answer.delete()
@@ -71,12 +71,12 @@ class UpdateAnswer(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['id'])
+        rid = from_global_id(input.get('id'))
         # TODO: only allow modification of items owned by user
         answer = Answer.objects.get(pk=rid[1])
-        if input['description']:
+        if input.get('description'):
             answer.description = input['description']
-        if input['is_correct']:
+        if input.get('is_correct') is not None:
             answer.is_correct = input['is_correct']
         answer.save()
         return UpdateAnswer(answer=answer)

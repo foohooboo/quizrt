@@ -20,6 +20,9 @@ class QuizrtTests(TestCase):
             password="meo12345"
         )
         self.assertEqual(user.username, "validUserName")
+        self.assertEqual(user.name, "valid name")
+        self.assertEqual(user.email, "email@test.com")
+        self.assertNotEqual(user.password, "meo12345")
 
     def test_create_user_no_email(self):
         with self.assertRaises(TypeError):
@@ -63,14 +66,19 @@ class QuizrtTests(TestCase):
             is_private=True
         )
         self.assertTrue(profile.is_private)
+        self.assertEqual(profile.name, "test profile")
+        self.assertEqual(profile.description, "test profile description")
 
     def test_create_quiz(self):
         quiz = Quiz.objects.create(
             name = "1quiz",
             description = "1quiz description",
             is_private = True,
-            class_profile = ClassProfile.objects.all()[1]
+            class_profile = ClassProfile.objects.get(pk=13)
         )
+        self.assertEqual(quiz.name, "1quiz")
+        self.assertEqual(quiz.description, "1quiz description")
+        self.assertEqual(quiz.class_profile.pk, 13)
         self.assertTrue(quiz.is_private)
 
     def test_create_question(self):
@@ -78,7 +86,8 @@ class QuizrtTests(TestCase):
             prompt = "1question",
             quiz = Quiz.objects.get(pk=5)
         )
-        self.assertTrue(question.prompt == "1question")
+        self.assertEqual(question.quiz.pk, 5)
+        self.assertEqual(question.prompt, "1question")
 
     def test_create_answer(self):
         answer = Answer.objects.create(
@@ -86,6 +95,9 @@ class QuizrtTests(TestCase):
             is_correct = True,
             question = Question.objects.get(pk=3)
         )
+        self.assertEqual(answer.description, "1answer")
+        self.assertEqual(answer.question.pk, 3)
+        self.assertTrue(answer.is_correct)
         self.assertTrue(answer.is_correct)
 
     def test_create_quiz_result(self):

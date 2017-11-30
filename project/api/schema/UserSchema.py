@@ -42,6 +42,7 @@ class CreateUser(relay.ClientIDMutation):
         password = graphene.String(required=True)
 
     user = graphene.Field(UserNode)
+    
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
         username = (input.get('username')
@@ -68,7 +69,7 @@ class DeleteUser(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['id'])
+        rid = from_global_id(input.get('id'))
         current_user = info.context.user
         if current_user.is_authenticated():
             if rid[1] == current_user.id:
@@ -84,10 +85,6 @@ class DeleteUser(relay.ClientIDMutation):
 class UpdateUser(relay.ClientIDMutation):
     class Input:
         id = graphene.ID(required=True)
-        # we exracted the fields from UserInput because we need to specify these
-        # fields as optional (required=False) - I don't think there's a way to do this in graphene
-        # but if these were typescript types, we could do something like user_input = Partial<UserInput>
-        # which would change all of the fields to be nullable
         username = graphene.String(required=False)
         profile_list = graphene.List(graphene.ID, required=False)
         name = graphene.String(required=False)
@@ -98,7 +95,7 @@ class UpdateUser(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        rid = from_global_id(input['id'])
+        rid = from_global_id(input.get('id'))
         current_user = info.context.user
         if current_user.is_authenticated():
             if input.get('username'):
@@ -125,8 +122,8 @@ class LoginUser(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        email = input['email']
-        password = input['password']
+        email = input.get('email')
+        password = input.get('password')
         # check login with email
         user = authenticate(info.context, email=email, password=password)
         if user != None:
