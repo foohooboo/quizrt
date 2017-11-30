@@ -8,7 +8,7 @@ from graphene.relay import Connection, ConnectionField
 from graphql_relay import from_global_id
 import graphene
 
-from project.api.models import QuizSession, User, Quiz
+from project.api.models import QuizSession, User, Quiz, Question
 
 class SessionNode(DjangoObjectType):
     class Meta:
@@ -104,18 +104,25 @@ class AdvanceQuestion(relay.ClientIDMutation):
         rid = from_global_id(input.get('id'))
         session = QuizSession.objects.get(pk=rid[1])
         curr_question_order = session.current_question.order_number
+        min_order_diff = None
         for question in session.quiz.question_set.all():
-            if question.order_number == curr_question_order:
-                session.current_question = question
-                session.display_results = False
-                session.save()
-                return AdvanceQuestion(session=session)
-            else:
-                curr_question_order += 1
-        session.current_question = None
-        session.display_results = False
-        session.save()
-        return AdvanceQuestion(session=session)
+            order_diff = question.order_number - curr_question_order
+            if (order_diff > 0) and (min_order_diff is None):
+                min_order_diff = order_diff
+            elif (order_diff > 0) and (order_diff < min_order_diff):
+                min_order_diff = order_diff
+        if min_order_diff is None:
+            session.current_question = None
+            session.display_results = False
+            session.save()
+            return AdvanceQuestion(session=session)
+        else:
+            next_order_num = curr_question_order + min_order_diff
+            next_question = Question.objects.get(order_number=next_order_num, quiz=session.quiz)
+            session.current_question = next_question
+            session.display_results = False
+            session.save()
+            return AdvanceQuestion(session=session)
 
 # if you're looking for the UpdateSession, i'm not sure we need it
 
