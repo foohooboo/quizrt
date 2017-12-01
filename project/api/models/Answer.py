@@ -12,7 +12,7 @@ class Answer(models.Model):
     def save(self, *args, **kwargs):
         if(self.description == ''):
             self.description = 'Answer Text Here'
-        super(Quiz, self).save(*args, **kwargs)  
+        super(Answer, self).save(*args, **kwargs)  
 
     def __str__(self):
         return "{0}:{1}".format(self.description, self.is_correct)

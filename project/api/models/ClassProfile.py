@@ -12,7 +12,7 @@ class ClassProfile(models.Model):
             self.name = 'Profile Name Here'
         if(self.description == ''):
             self.description = 'Profile Description'
-        super(Quiz, self).save(*args, **kwargs)  
+        super(ClassProfile, self).save(*args, **kwargs)  
 
     def __str__(self):
         return self.name
