@@ -144,6 +144,7 @@
         "quiz": 5,
         "is_locked": false,
         "session_date": "2017-11-29T03:56:48.711Z",
+        "current_question": null,
         "display_results": false
     }
 },
@@ -155,6 +156,7 @@
         "quiz": 7,
         "is_locked": true,
         "session_date": "2017-11-29T05:05:30.299Z",
+        "current_question": null,
         "display_results": false
     }
 },
