@@ -24,7 +24,7 @@ class Response(models.Model):
     
     def get_score(self):
         if self.answer.is_correct:
-            return self.answer.question.question_duration / self.response_delay
+            return self.answer.question.question_duration // self.response_delay
         else:
             return 0
             
