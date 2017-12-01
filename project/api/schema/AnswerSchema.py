@@ -35,7 +35,6 @@ class CreateAnswer(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        print(input['answer_data'])
         rid = from_global_id(input['answer_data'].get('question'))
         answer = Answer.objects.create(
             description=input['answer_data'].get('description'),
