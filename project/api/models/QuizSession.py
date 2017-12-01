@@ -13,7 +13,7 @@ class QuizSession(models.Model):
     session_date = models.DateTimeField(default=timezone.now)
     current_question = models.CharField(max_length=255, default='')
     display_results = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return "QuizSession for " + self.quiz.__str__()
     

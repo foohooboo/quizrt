@@ -22,4 +22,13 @@ class Response(models.Model):
     def __str__(self):
         return "Response for " + self.question.__str__()
     
-    
+    def save(self, *args, **kwargs):
+        try:
+            if(self.quiz_session.is_locked):
+                raise Exception('Cannot add response to closed Session')
+            if(self.response_delay < 0):
+                raise Excetion('Response delay cannot be less than zero')
+            else:
+                super(Response, self).save(*args, **kwargs)
+        except AttributeError:
+            raise Exception('Session required')

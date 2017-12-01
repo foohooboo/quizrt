@@ -261,6 +261,44 @@ class QuizrtTests(TestCase):
         )
         self.assertTrue(response.user.pk == 4)
 
+    def test_create_response_no_user(self):
+        with self.assertRaises(IntegrityError):
+            r = Response.objects.create(
+                answer = Answer.objects.get(pk=16),
+                quiz_session = QuizSession.objects.get(pk=1),
+            )
+
+    def test_create_response_no_answer(self):
+        with self.assertRaises(IntegrityError):
+            r = Response.objects.create(
+                user = User.objects.get(pk=4),
+                quiz_session = QuizSession.objects.get(pk=1),
+            )
+        
+    def test_create_response_no_session(self):
+        with self.assertRaises(Exception):
+            r = Response.objects.create(
+                user = User.objects.get(pk=4),
+                answer = Answer.objects.get(pk=16),
+            )
+
+    def test_create_response_negative_delay(self):
+        with self.assertRaises(Exception):
+            response = Response.objects.create(
+            user = User.objects.get(pk=4),
+            answer = Answer.objects.get(pk=16),
+            quiz_session = QuizSession.objects.get(pk=1),
+            response_delay = -1
+        )
+
+    def test_create_response_for_closed_session(self):
+        with self.assertRaises(Exception):
+            r = Response.objects.create(
+                user = User.objects.get(pk=4),
+                answer = Answer.objects.get(pk=16),
+                quiz_session = QuizSession.objects.get(pk=2)
+            )
+
 # --------------- SESSION TESTS ----------------- #
     def test_create_session(self):
         session = QuizSession.objects.create(
@@ -270,10 +308,16 @@ class QuizrtTests(TestCase):
         self.assertTrue(session.quiz == Quiz.objects.get(pk=5))
 
     def test_create_session_no_owner(self):
-        session = QuizSession.objects.create(
-            quiz = Quiz.objects.get(pk=10),
-            
-        )
+        with self.assertRaises(IntegrityError):
+            session = QuizSession.objects.create(
+                quiz = Quiz.objects.get(pk=5),
+            )
+
+    def test_create_session_no_quiz(self):
+        with self.assertRaises(IntegrityError):
+            session = QuizSession.objects.create(
+                owner = User.objects.get(pk=4),
+            )
 
     def test_access_response_from_session(self):
         response_set = QuizSession.objects.get(pk=1).response_set.all()
