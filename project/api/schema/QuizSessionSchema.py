@@ -1,3 +1,5 @@
+import operator
+
 from django.http import Http404
 
 from graphene_django import DjangoObjectType
@@ -124,31 +126,32 @@ class AdvanceQuestion(relay.ClientIDMutation):
             session.save()
             return AdvanceQuestion(session=session)
 
-# if you're looking for the UpdateSession, i'm not sure we need it
 
-# class UserScoresType(DjangoObjectType):
-#     class Meta:
-#         model = QuizSession
+# if you're looking for the UpdateSession, i'm not sure we need it
 
 
 class Query(object):
     sessions = DjangoFilterConnectionField(SessionNode)
     session = relay.Node.Field(SessionNode)
-    # user_scores = graphene.Field(UserScoresType,
-    #                           id=graphene.Int(),
-    #                           name=graphene.String())
+    user_scores = graphene.List(graphene.String)
+    
+    def resolve_user_scores(self, info, **kwargs):
+        rid = from_global_id(kwargs.get('id'))
+        if rid is None:
+            return None
+        session = QuizSession.objects.get(pk=rid[1])
+        user_scores = {}
+        for response in session.response_set.all():
+            if response.user not in user_scores:
+                user_scores[response.user] = response.get_score()
+            else:
+                user_scores[response.user] += response.get_score()
 
-    # def resolve_user_scores(self, info, **kwargs):
-    #     id = kwargs.get('id')
-    #     name = kwargs.get('name')
-
-    #     if id is not None:
-    #         return Category.objects.get(pk=id)
-
-    #     if name is not None:
-    #         return Category.objects.get(name=name)
-
-    #     return None
+        sorted_scores = sorted(user_scores.items(), key=operator.itemgetter(1))
+        users_in_order = []
+        for item in sorted_scores:
+            users_in_order.append(item[0])
+        return users_in_order
 
 
 class Mutation(object):
