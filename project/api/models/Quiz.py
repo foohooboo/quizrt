@@ -12,11 +12,10 @@ class Quiz(models.Model):
 
     def save(self, *args, **kwargs):
         if(self.name == ''):
-            raise TypeError('Name required')
+            self.name = 'Quiz Name Here'
         if(self.description == ''):
-            raise TypeError('Description required')
-        else:
-            super(Quiz, self).save(*args, **kwargs)   
+            self.description = 'Quiz Description'
+        super(Quiz, self).save(*args, **kwargs)   
 
     def __str__(self):
         return self.name

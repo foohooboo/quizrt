@@ -12,12 +12,11 @@ class Question(models.Model):
     question_duration = models.IntegerField(default=30)
 
     def save(self, *args, **kwargs):
-        if(self.prompt == ''):
-            raise TypeError('Prompt required')
         if(self.name == ''):
-            raise TypeError('Name required')
-        else:
-            super(Question, self).save(*args, **kwargs)
+            self.name = 'Question Name Here'
+        if(self.prompt == ''):
+            self.prompt = 'Question Prompt'
+        super(Quiz, self).save(*args, **kwargs)  
 
     def __str__(self):
         return self.name
