@@ -6,7 +6,7 @@ from . import Question, Answer, User, QuizSession
 
 class Response(models.Model):
     # user will be null for anonymous users
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.CharField(max_length=255)
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
     quiz_session = models.ForeignKey(QuizSession, on_delete=models.CASCADE)
     response_delay = models.IntegerField(default=0)
@@ -26,9 +26,16 @@ class Response(models.Model):
         try:
             if(self.quiz_session.is_locked):
                 raise Exception('Cannot add response to closed Session')
-            if(self.response_delay < 0):
-                raise Excetion('Response delay cannot be less than zero')
+            if(self.response_delay <= 0):
+                raise Excetion('Response delay cannot be zero or less')
             else:
                 super(Response, self).save(*args, **kwargs)
         except AttributeError:
             raise Exception('Session required')
+            
+    def get_score(self):
+        if self.answer.is_correct:
+            return self.answer.question.question_duration // self.response_delay
+        else:
+            return 0
+            

@@ -31,7 +31,7 @@ class ResponseNode(DjangoObjectType):
 class CreateResponse(relay.ClientIDMutation):
     class Input:
         # response_data = ResponseInput(required=True)
-        user = graphene.ID(required=True)
+        user = graphene.String(required=True)
         answer = graphene.ID(required=True)
         quiz_session = graphene.ID(required=True)
         response_delay = graphene.Int(required=False)
@@ -40,11 +40,10 @@ class CreateResponse(relay.ClientIDMutation):
 
     @classmethod
     def mutate_and_get_payload(cls, root, info, **input):
-        user_ID = from_global_id(input.get('user')) 
         answer_ID = from_global_id(input.get('answer')) 
         session_ID = from_global_id(input.get('quiz_session')) 
         kwargs = {
-            "user": User.objects.get(pk=user_ID[1]),
+            "user": input.get('user'),
             "answer": Answer.objects.get(pk=answer_ID[1]),
             "quiz_session": QuizSession.objects.get(pk=session_ID[1]),
             "response_delay": input.get('response_delay')

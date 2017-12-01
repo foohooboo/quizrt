@@ -93,8 +93,8 @@ class UpdateClassProfile(relay.ClientIDMutation):
 
 
 class Query(object):
-        profiles = DjangoFilterConnectionField(ClassProfileNode)
-        profile = relay.Node.Field(ClassProfileNode)
+    profiles = DjangoFilterConnectionField(ClassProfileNode)
+    profile = relay.Node.Field(ClassProfileNode)
 
 
 class Mutation(object):
