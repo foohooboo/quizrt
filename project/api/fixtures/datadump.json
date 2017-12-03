@@ -164,7 +164,7 @@
     "model": "api.response",
     "pk": 1,
     "fields": {
-        "user": 7,
+        "user": "andy",
         "answer": 9,
         "quiz_session": 1,
         "response_delay": 21
@@ -174,7 +174,7 @@
     "model": "api.response",
     "pk": 2,
     "fields": {
-        "user": 4,
+        "user": "Daniel Evans",
         "answer": 16,
         "quiz_session": 1,
         "response_delay": 17
@@ -184,7 +184,7 @@
     "model": "api.response",
     "pk": 3,
     "fields": {
-        "user": 4,
+        "user": "Daniel Evans",
         "answer": 9,
         "quiz_session": 1,
         "response_delay": 15
