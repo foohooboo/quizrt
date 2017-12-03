@@ -15,6 +15,7 @@ class QuizNode(DjangoObjectType):
         filter_fields = {
             'name': ['exact', 'icontains'],
             'description': ['icontains'],
+            'class_profile': ['exact'],
             'id': ['exact'],
             'is_private': ['exact']
         }
