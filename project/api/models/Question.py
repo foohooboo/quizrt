@@ -11,5 +11,12 @@ class Question(models.Model):
     order_number = models.IntegerField(default=0)
     question_duration = models.IntegerField(default=30)
 
+    def save(self, *args, **kwargs):
+        if(self.name == ''):
+            self.name = 'Question Name Here'
+        if(self.prompt == ''):
+            self.prompt = 'Question Prompt'
+        super(Question, self).save(*args, **kwargs)  
+
     def __str__(self):
         return self.name

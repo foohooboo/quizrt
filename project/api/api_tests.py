@@ -9,8 +9,8 @@ from graphql_relay import from_global_id
 
 from .schema import schema
 
-from .models import User, ClassProfile, Quiz, Question, Answer
-from .models import QuizResult, Response, QuizSession
+from .models import (User, ClassProfile, Quiz, Question, Answer,
+                     Response, QuizSession)
 
 class ApiTests(TestCase):
     fixtures = ['datadump.json']
