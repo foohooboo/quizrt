@@ -27,7 +27,7 @@ class Response(models.Model):
             if(self.quiz_session.is_locked):
                 raise Exception('Cannot add response to closed Session')
             if(self.response_delay <= 0):
-                raise Excetion('Response delay cannot be zero or less')
+                raise Exception('Response delay cannot be zero or less')
             else:
                 super(Response, self).save(*args, **kwargs)
         except AttributeError:

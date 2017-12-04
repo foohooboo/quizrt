@@ -257,7 +257,8 @@ class QuizrtTests(TestCase):
         response = Response.objects.create(
             user = User.objects.get(pk=4),
             answer = Answer.objects.get(pk=16),
-            quiz_session = QuizSession.objects.get(pk=1)
+            quiz_session = QuizSession.objects.get(pk=1),
+            response_delay = 5,
         )
         self.assertTrue(response.user.pk == 4)
 
@@ -266,6 +267,7 @@ class QuizrtTests(TestCase):
             r = Response.objects.create(
                 answer = Answer.objects.get(pk=16),
                 quiz_session = QuizSession.objects.get(pk=1),
+                response_delay = 5,
             )
 
     def test_create_response_no_answer(self):
@@ -273,6 +275,7 @@ class QuizrtTests(TestCase):
             r = Response.objects.create(
                 user = User.objects.get(pk=4),
                 quiz_session = QuizSession.objects.get(pk=1),
+                response_delay = 5,
             )
         
     def test_create_response_no_session(self):
@@ -280,6 +283,7 @@ class QuizrtTests(TestCase):
             r = Response.objects.create(
                 user = User.objects.get(pk=4),
                 answer = Answer.objects.get(pk=16),
+                response_delay = 5,
             )
 
     def test_create_response_negative_delay(self):
@@ -296,7 +300,8 @@ class QuizrtTests(TestCase):
             r = Response.objects.create(
                 user = User.objects.get(pk=4),
                 answer = Answer.objects.get(pk=16),
-                quiz_session = QuizSession.objects.get(pk=2)
+                quiz_session = QuizSession.objects.get(pk=2),
+                response_delay = 5,
             )
 
 # --------------- SESSION TESTS ----------------- #
