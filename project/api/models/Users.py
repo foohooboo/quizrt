@@ -1,9 +1,12 @@
 from __future__ import unicode_literals
 
-from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser,
                                         BaseUserManager)
+from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+
 
 from .ClassProfile import ClassProfile
 # Create your models here.
@@ -54,3 +57,21 @@ class User(AbstractBaseUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'name']
+
+@receiver(post_save, sender=User)
+def create_new_user_profile(sender, **kwargs):
+    if(kwargs.get('created')):
+        user = kwargs.get('instance')
+        description = 'Default profile for ' + user.username
+        profile = ClassProfile.objects.create(description = description,
+                                    name = user.username,
+                                    is_private = True)
+        profile.save()
+        user.class_profiles.add(profile)
+
+# can't really guarantee this right meow. 
+# @receiver(post_delete, sender=User)
+# def delete_default_profile(sender, **kwargs):
+#     user = kwargs.get('instance')
+#     profile = ClassProfile.objects.filter(name=user.username, is_private=True)
+#     profile.delete()
