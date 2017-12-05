@@ -105,13 +105,26 @@ class AdvanceQuestion(relay.ClientIDMutation):
     def mutate_and_get_payload(cls, root, info, **input):
         rid = from_global_id(input.get('id'))
         session = QuizSession.objects.get(pk=rid[1])
+        if session.current_question is None:
+            # Find question with minimum order number and set it to current_question
+            min_order = None
+            first_question = None
+            for question in session.quiz.question_set.all():
+                if min_order is None:
+                    min_order = question.order_number
+                    first_question = question
+                elif question.order_number < min_order:
+                    min_order = question.order_number
+                    first_question = question
+            session.current_question = first_question
+            session.save()
         curr_question_order = session.current_question.order_number
         min_order_diff = None
         for question in session.quiz.question_set.all():
             order_diff = question.order_number - curr_question_order
-            if (order_diff > 0) and (min_order_diff is None):
+            if (order_diff >= 0) and (min_order_diff is None):
                 min_order_diff = order_diff
-            elif (order_diff > 0) and (order_diff < min_order_diff):
+            elif (order_diff >= 0) and (order_diff < min_order_diff):
                 min_order_diff = order_diff
         if min_order_diff is None:
             session.current_question = None
