@@ -9,6 +9,7 @@ from graphene import relay, ObjectType, Mutation
 from graphene.relay import Connection, ConnectionField
 from graphql_relay import from_global_id
 import graphene
+from functools import reduce 
 
 from project.api.models import QuizSession, User, Quiz, Question
 
@@ -108,16 +109,19 @@ class AdvanceQuestion(relay.ClientIDMutation):
         if session.current_question is None:
             # Find question with minimum order number and set it to current_question
             min_order = None
-            first_question = None
-            for question in session.quiz.question_set.all():
-                if min_order is None:
-                    min_order = question.order_number
-                    first_question = question
-                elif question.order_number < min_order:
-                    min_order = question.order_number
-                    first_question = question
+            first_question = reduce(lambda a,b: a if a.order_number < b.order_number else b,
+                                    session.quiz.question_set.all())
+            print(first_question)
+            # for question in session.quiz.question_set.all():
+            #     if min_order is None:
+            #         min_order = question.order_number
+            #         first_question = question
+            #     elif question.order_number < min_order:
+            #         min_order = question.order_number
+            #         first_question = question
             session.current_question = first_question
             session.save()
+            return AdvanceQuestion(session=session)
 
         # Find the question closest to the current question (based on the order number)
         curr_question_order = session.current_question.order_number
