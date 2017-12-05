@@ -1,5 +1,7 @@
 from django.http import Http404
 
+from operator import itemgetter, attrgetter, methodcaller
+
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
@@ -54,6 +56,14 @@ class CreateQuestion(relay.ClientIDMutation):
         #     name=input['question_data'].get('name'),
         #     quiz=Quiz.objects.get(pk=rid[1]))
         question.save()
+
+        qs = sorted(list(Question.objects.all()), key=attrgetter('order_number'))
+        i = 0
+        for q in qs:
+            q.order_number = i
+            q.save()
+            i += 1
+
         return CreateQuestion(question=question)
 
 
