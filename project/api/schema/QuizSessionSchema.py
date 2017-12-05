@@ -118,20 +118,25 @@ class AdvanceQuestion(relay.ClientIDMutation):
                     first_question = question
             session.current_question = first_question
             session.save()
+
+        # Find the question closest to the current question (based on the order number)
         curr_question_order = session.current_question.order_number
         min_order_diff = None
         for question in session.quiz.question_set.all():
             order_diff = question.order_number - curr_question_order
-            if (order_diff >= 0) and (min_order_diff is None):
+            if (order_diff > 0) and (min_order_diff is None):
                 min_order_diff = order_diff
-            elif (order_diff >= 0) and (order_diff < min_order_diff):
+            elif (order_diff > 0) and (order_diff < min_order_diff):
                 min_order_diff = order_diff
+        # the session is over (no more questions)
         if min_order_diff is None:
             session.current_question = None
             session.display_results = False
+            session.is_locked = True
             session.save()
             return AdvanceQuestion(session=session)
         else:
+            # sets the current question field to be the found question
             next_order_num = curr_question_order + min_order_diff
             next_question = Question.objects.get(order_number=next_order_num, quiz=session.quiz)
             session.current_question = next_question
