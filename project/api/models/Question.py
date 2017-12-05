@@ -16,7 +16,9 @@ class Question(models.Model):
             self.name = 'Question Name Here'
         if(self.prompt == ''):
             self.prompt = 'Question Prompt'
-        super(Question, self).save(*args, **kwargs)  
+        if(self.question_duration <= 0):
+            self.question_duration *= -1
+        super(Question, self).save(*args, **kwargs) 
 
     def __str__(self):
         return self.name
