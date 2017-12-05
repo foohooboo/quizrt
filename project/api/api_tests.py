@@ -98,9 +98,6 @@ class ApiTests(TestCase):
                                 quiz{
                                     name
                                 }
-                                quizResult{
-                                    date
-                                }
                             }
                         }
                     }
