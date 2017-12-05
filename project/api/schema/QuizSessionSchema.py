@@ -133,7 +133,7 @@ class AdvanceQuestion(relay.ClientIDMutation):
 class Query(object):
     sessions = DjangoFilterConnectionField(SessionNode)
     session = relay.Node.Field(SessionNode)
-    user_scores = graphene.List(graphene.String)
+    user_scores = graphene.Field(graphene.NonNull(graphene.List(graphene.String)), id=graphene.ID(required=True))
     
     def resolve_user_scores(self, info, **kwargs):
         rid = from_global_id(kwargs.get('id'))
