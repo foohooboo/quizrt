@@ -27,7 +27,11 @@ class Response(models.Model):
             if(self.quiz_session.is_locked):
                 raise Exception('Cannot add response to closed Session')
             if(self.response_delay <= 0):
-                raise Excetion('Response delay cannot be zero or less')
+                raise Exception('Response delay must be greater than or equal to zero')
+            if(self.user == ''):
+                raise Exception('Response must be associated with a user')
+            if(self.answer.question.quiz != self.quiz_session.quiz):
+                raise Exception('Quiz conflict. The answer does not belong to the Quiz associated to this session')
             else:
                 super(Response, self).save(*args, **kwargs)
         except AttributeError:

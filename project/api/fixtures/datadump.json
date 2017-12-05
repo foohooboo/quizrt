@@ -27,11 +27,20 @@
     }
 },
 {
+    "model": "api.classprofile",
+    "pk": 15,
+    "fields": {
+        "name": "make a profile!",
+        "description": "Default profile for make a profile!",
+        "is_private": true
+    }
+},
+{
     "model": "api.user",
     "pk": 4,
     "fields": {
         "password": "pbkdf2_sha256$36000$LokLIeTprEcw$VgSme/m1ze5UPS2SxnuI7csOWvqs6S3W+yeUij6rkmM=",
-        "last_login": null,
+        "last_login": "2017-12-03T01:50:40.515Z",
         "email": "foohooboo@test.com",
         "username": "foohooboo",
         "name": "Daniel Evans",
@@ -52,6 +61,20 @@
         "name": "andy",
         "class_profiles": [
             13
+        ]
+    }
+},
+{
+    "model": "api.user",
+    "pk": 8,
+    "fields": {
+        "password": "pbkdf2_sha256$36000$qMtGjP0CSBbv$Bh4tQJ2N/9P/E7bSZQFHz92jE4H+ON21Wn+DZPvQ3Jc=",
+        "last_login": null,
+        "email": "defaultProfile@test.com",
+        "username": "make a profile!",
+        "name": "profiler",
+        "class_profiles": [
+            15
         ]
     }
 },
@@ -156,6 +179,18 @@
         "quiz": 7,
         "is_locked": true,
         "session_date": "2017-11-29T05:05:30.299Z",
+        "current_question": null,
+        "display_results": false
+    }
+},
+{
+    "model": "api.quizsession",
+    "pk": 3,
+    "fields": {
+        "owner": 8,
+        "quiz": 7,
+        "is_locked": false,
+        "session_date": "2017-11-29T03:56:48.711Z",
         "current_question": null,
         "display_results": false
     }
