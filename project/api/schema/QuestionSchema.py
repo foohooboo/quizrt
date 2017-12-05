@@ -103,7 +103,7 @@ class UpdateQuestion(relay.ClientIDMutation):
             question.prompt = input['prompt']
         if input.get('name'):
             question.name = input['name']
-        if input.get('order_number'):
+        if input.get('order_number') is not None:
             question.order_number = input['order_number']
         if input.get('question_duration'):
             question.question_duration = input['question_duration']
