@@ -142,7 +142,7 @@ class AdvanceQuestion(relay.ClientIDMutation):
         else:
             # sets the current question field to be the found question
             next_order_num = curr_question_order + min_order_diff
-            next_question = Question.objects.get(order_number=next_order_num, quiz=session.quiz)
+            next_question = Question.objects.filter(order_number=next_order_num, quiz=session.quiz)[0]
             session.current_question = next_question
             session.display_results = False
             session.save()
